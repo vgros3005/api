@@ -1,0 +1,263 @@
+openapi: 3.0.0
+servers:
+  - url: 'http://recette.m2m-dev.lan.def/'
+    description: API DEF IFS V9
+info:
+  title: IFS V9 API
+  version: 1.0.0
+  description: Portail API pour IFS V9 pour traitements M2M
+  contact:
+    email: vincent.gros@def-online.com
+    name: GROS Vincent
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: prospect
+    description: prospect management
+  - name: opportunity
+    description: opportunity management
+paths:
+  /prospect:
+    summary: All about prospect
+    post:
+      summary: Add a new Prospect
+      description: Add new prospect to IFS or add a new address for a existing client
+      parameters: []
+      operationId: addProspect
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/prospectApiResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/prospectApiResponse'
+        '405':
+          description: Invalid Input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/apiResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/apiResponse'
+      tags:
+        - prospect
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Prospect'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Prospect'
+        description: Propect Object that needs to be add to IFS
+        required: true
+      security:
+        - api_key: []
+    put:
+      summary: Modify a prospect
+      description: Modify name or address for the given prospect
+      operationId: updateProspect
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/prospectApiResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/prospectApiResponse'
+        '405':
+          description: Invalid Input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/apiResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/apiResponse'
+      tags:
+        - prospect
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Prospect'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Prospect'
+        description: Propect Object that needs to be add to IFS
+        required: true
+      security:
+        - api_key: []
+  /opportunity:
+    summary: All about the opportunity
+    post:
+      summary: Add a new opportunity
+      description: Send a opportunity to IFS and create the sales contract
+      operationId: addOpportunity
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - opportunity
+externalDocs:
+  description: coming soon ...
+  url: 'http://m2m.lan.def/docs'
+components:
+  schemas:
+    apiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+      xml:
+        name: Response
+    Prospect:
+      type: object
+      required:
+        - id
+        - siret
+        - name
+        - address
+      properties:
+        id:
+          type: string
+          description: Prospect Id
+        siret:
+          type: string
+          description: unique identifier for a client
+          example: '71205626600117'
+        name:
+          type: string
+          description: social reason of the company
+          example: La Detection Electronique Francaise
+        address:
+          type: object
+          $ref: '#/components/schemas/Address'
+          description: Company address
+      xml:
+        name: Prospect
+    prospectApiResponse:
+      type: object
+      properties:
+        apiResponse:
+          $ref: '#/components/schemas/apiResponse'
+        datas:
+          $ref: '#/components/schemas/Prospect'
+    Address:
+      type: object
+      required:
+        - addr1
+        - postalCode
+        - city
+        - country
+      properties:
+        id:
+          type: string
+          description: Address Id
+          example: '01'
+        addr1:
+          type: string
+          description: Address1
+          example: 9 rue du Saule Trappu
+        addr2:
+          type: string
+          description: Address
+          example: Z.I. du Moulin de Massy
+        postalCode:
+          type: string
+          description: Postal code
+          example: '91300'
+        city:
+          type: string
+          description: city
+          example: MASSY
+        country:
+          type: string
+          description: ISO country Code
+          example: FR
+      xml:
+        name: Address
+    SalesContract:
+      type: object
+      required:
+        - contractNo
+      properties:
+        contractNo:
+          type: string
+          description: Sales contract No Id in IFS
+          example: D0000012
+        oppId:
+          type: string
+          description: Opportunity Id from CRM
+    Opportunity:
+      type: object
+      required:
+        - id
+        - oppName
+        - idCustomer
+        - salesContractType
+        - site
+      properties:
+        id:
+          type: string
+          description: Opportunity Id
+        oppName:
+          type: string
+          description: name of the opportunity
+          example: Auchan Bretigny
+        oppDescription:
+          type: string
+          description: explanation about the opportunity
+          example: >-
+            Mise en place de la detection incendie dans la nouvelle gallerie
+            marchande
+        idCustomer:
+          type: string
+          description: IFS customer Id
+          example: C1000012
+        salesContractType:
+          type: string
+          description: IFS type of sales contract
+          example: DSP
+          enum:
+            - DSP
+            - DAP
+            - ISP
+            - IAP
+            - NEG
+            - PTX
+        site:
+          type: string
+          description: site that will respond to the opportunity
+          example: 02T
+        salesman:
+          type: string
+          description: salesman login
+          example: VGROS
+        atbe:
+          type: string
+          description: technical assistant design office login
+          example: LTAN
+      xml:
+        name: Opportunity
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
+  links: {}
+  callbacks: {}
+security:
+  - api_key: []
